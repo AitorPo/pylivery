@@ -1,7 +1,7 @@
 import http.client
 import json
 from datetime import datetime, timedelta
-from typing import Dict, Union, Any, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 from .base import BaseAPIClient
 
@@ -28,7 +28,6 @@ class URL:
 
 
 class GlovoV2Client(BaseAPIClient):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client_id = ...
@@ -58,6 +57,7 @@ class GlovoV2Client(BaseAPIClient):
         self.set_login_payload()
         hasattr(self, 'client_id') and self.client_id is not Ellipsis
         hasattr(self, 'client_secret') and self.client_secret is not Ellipsis
+        hasattr(self, 'stage') and self.stage is not Ellipsis
 
         conn = http.client.HTTPSConnection(f"{self.base_url.split('//')[1]}")
         conn.request("POST", f"{URL.AUTH}", self.login_payload, self.headers)
@@ -71,64 +71,48 @@ class GlovoV2Client(BaseAPIClient):
         self.expires_at = datetime.now() + timedelta(seconds=self.expires_in)
         self.headers.update({'Authorization': f'Bearer {self.access_token}'})
 
-    def validate_address(self, data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def validate_address(
+        self, data: dict
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+        return self.perform_request('POST', f"{URL.PARCEL}validation", data=data)
+
+    def create(self, data: dict) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+        return self.perform_request('POST', URL.PARCEL, data=data)
+
+    def get(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+        return self.perform_request('GET', f"{URL.PARCEL}{_id}", data={})
+
+    def get_order_status(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
-            'POST',
-            f"{URL.PARCEL}validation",
-            data=data
+            'GET', f"/{Versions.V2}/{URL.PARCEL}{_id}/status", data={}
         )
 
-    def create(self, data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        return self.perform_request(
-            'POST',
-            URL.PARCEL,
-            data=data
-        )
+    def cancel(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+        return self.perform_request('PUT', f"{URL.PARCEL}{_id}/cancel", data={})
 
-    def get(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        return self.perform_request(
-            'GET',
-            f"{URL.PARCEL}{_id}",
-            data={}
-        )
-
-    def get_order_status(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        return self.perform_request(
-            'GET',
-            f"/{Versions.V2}/{URL.PARCEL}{_id}/status",
-            data={}
-        )
-
-    def cancel(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        return self.perform_request(
-            'PUT',
-            f"{URL.PARCEL}{_id}/cancel",
-            data={}
-        )
-
-    def update(self, _id: Union[str, int], data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def update(
+        self, _id: Union[str, int], data: dict
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
-    def get_rider_data(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get_rider_data(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
-            'GET',
-            f"{URL.PARCEL}{_id}/courier-contact",
-            data={}
+            'GET', f"{URL.PARCEL}{_id}/courier-contact", data={}
         )
 
-    def get_rider_location(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get_rider_location(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
-            'GET',
-            f"{URL.PARCEL}{_id}/courier-position",
-            data={}
+            'GET', f"{URL.PARCEL}{_id}/courier-position", data={}
         )
 
 

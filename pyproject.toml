@@ -8,7 +8,11 @@ authors = ["Aitor Poquet <aitorpoquetgin@gmail.com>"]
 python = "^3.10"
 requests = "*"
 
+
 [tool.poetry.dev-dependencies]
+flake8 = "*"
+isort = "*"
+black = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

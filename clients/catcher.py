@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta
-from typing import Dict, Union, Any, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import requests
 
@@ -20,7 +20,6 @@ class URL:
 
 
 class CatcherClient(BaseAPIClient):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.api_key = ...
@@ -48,65 +47,65 @@ class CatcherClient(BaseAPIClient):
         hasattr(self, 'api_key') and self.api_key is not Ellipsis
         hasattr(self, 'api_secret') and self.api_secret is not Ellipsis
 
-        response = requests.request('POST',
-                                    f"{self.base_url}{URL.AUTH.format(version=Versions.V1)}",
-                                    data=self.login_payload,
-                                    headers=self.headers).json()
+        response = requests.request(
+            'POST',
+            f"{self.base_url}{URL.AUTH.format(version=Versions.V1)}",
+            data=self.login_payload,
+            headers=self.headers,
+        ).json()
 
         self.access_token = response['data']['token']
         self.expires_at = datetime.now() + timedelta(seconds=self.expires_in)
         self.headers.update({'Authorization': f'Bearer {self.access_token}'})
 
-    def validate_address(self, data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def validate_address(
+        self, data: dict
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
-    def create(self, data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def create(self, data: dict) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
-            'POST',
-            f"{URL.PITCHER.format(version=Versions.V1)}",
-            data=data
+            'POST', f"{URL.PITCHER.format(version=Versions.V1)}", data=data
         )
 
-    def get(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
-            'GET',
-            f"{URL.PITCHER.format(version=Versions.V1)}/{_id}",
-            data={}
+            'GET', f"{URL.PITCHER.format(version=Versions.V1)}/{_id}", data={}
         )
 
-    def get_order_status(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get_order_status(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
-            'GET',
-            f"{URL.PITCHER.format(version=Versions.V1)}/status/{_id}",
-            data={}
+            'GET', f"{URL.PITCHER.format(version=Versions.V1)}/status/{_id}", data={}
         )
 
-    def cancel(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def cancel(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
-            'PUT',
-            f"{URL.PITCHER.format(version=Versions.V1)}/cancel/{_id}",
-            data={}
+            'PUT', f"{URL.PITCHER.format(version=Versions.V1)}/cancel/{_id}", data={}
         )
 
-    def update(self, _id: Union[str, int], data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def update(
+        self, _id: Union[str, int], data: dict
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
-    def get_rider_data(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get_rider_data(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
-    def get_rider_location(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get_rider_location(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET',
             f"{URL.PITCHER.format(version=Versions.V1)}/riderlocation/{_id}",
-            data={}
+            data={},
         )
 
 

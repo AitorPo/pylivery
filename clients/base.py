@@ -1,38 +1,37 @@
 import abc
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Tuple, Union
 
 import requests
-
-from typing import Dict, Union, Tuple, Any, List
 
 
 class APIInterface(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
         return (
-                hasattr(subclass, 'set_api_credentials') and
-                callable(subclass.set_api_credentials) and
-                hasattr(subclass, 'set_login_payload') and
-                callable(subclass.set_login_payload) and
-                hasattr(subclass, 'authorize') and
-                callable(subclass.authorize) and
-                hasattr(subclass, 'validate_address') and
-                callable(subclass.validate_address) and
-                hasattr(subclass, 'create') and
-                callable(subclass.create) and
-                hasattr(subclass, 'get') and
-                callable(subclass.get) and
-                hasattr(subclass, 'get_order_status') and
-                callable(subclass.get_order_status) and
-                hasattr(subclass, 'cancel') and
-                callable(subclass.cancel) and
-                hasattr(subclass, 'update') and
-                callable(subclass.update) and
-                hasattr(subclass, 'get_rider_data') and
-                callable(subclass.get_rider_data) and
-                hasattr(subclass, 'get_rider_location') and
-                callable(subclass.get_rider_location) or
-                NotImplemented
+            hasattr(subclass, 'set_api_credentials')
+            and callable(subclass.set_api_credentials)
+            and hasattr(subclass, 'set_login_payload')
+            and callable(subclass.set_login_payload)
+            and hasattr(subclass, 'authorize')
+            and callable(subclass.authorize)
+            and hasattr(subclass, 'validate_address')
+            and callable(subclass.validate_address)
+            and hasattr(subclass, 'create')
+            and callable(subclass.create)
+            and hasattr(subclass, 'get')
+            and callable(subclass.get)
+            and hasattr(subclass, 'get_order_status')
+            and callable(subclass.get_order_status)
+            and hasattr(subclass, 'cancel')
+            and callable(subclass.cancel)
+            and hasattr(subclass, 'update')
+            and callable(subclass.update)
+            and hasattr(subclass, 'get_rider_data')
+            and callable(subclass.get_rider_data)
+            and hasattr(subclass, 'get_rider_location')
+            and callable(subclass.get_rider_location)
+            or NotImplemented
         )
 
     @abc.abstractmethod
@@ -51,56 +50,61 @@ class APIInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def validate_address(self, data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def validate_address(
+        self, data: dict
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Checks if the company makes deliveries in that working area"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def create(self, data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def create(self, data: dict) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Creates and order"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Gets and order"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_order_status(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get_order_status(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Gets order's status"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def cancel(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def cancel(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Cancels and order"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def update(self, _id: Union[str, int], data: dict) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def update(
+        self, _id: Union[str, int], data: dict
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Updates an order"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_rider_data(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get_rider_data(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Gets the rider's information"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_rider_location(self, _id: Union[str, int]) -> (
-            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def get_rider_location(
+        self, _id: Union[str, int]
+    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Gets the rider's location (coordinates)"""
         raise NotImplementedError
 
 
 class BaseAPIClient(APIInterface):
-
     def __init__(self, *args, **kwargs: str) -> None:
         self.base_url = ...
         self.access_token = ...
@@ -155,17 +159,28 @@ class BaseAPIClient(APIInterface):
 
         return ask_for_token
 
-    def perform_request(self, http_verb: str, endpoint: str, *, data: Union[str, Dict[str, Any]] = ...,
-                        params: Dict[str, str] = ...) -> Tuple[int, Dict[str, Any]]:
+    def perform_request(
+        self,
+        http_verb: str,
+        endpoint: str,
+        *,
+        data: Union[str, Dict[str, Any]] = ...,
+        params: Dict[str, str] = ...,
+        headers: Dict[str, Any] = ...,
+    ) -> Tuple[int, Dict[str, Any]]:
         if data is None or data is Ellipsis:
             data = {}
         if params is None or params is Ellipsis:
             params = {}
+        if headers is None or headers is Ellipsis:
+            headers = self.headers
 
         self.authorize()
         try:
             url = f"{self.base_url}{endpoint}"
-            response = requests.request(http_verb, url, data=data, params=params, headers=self.headers)
+            response = requests.request(
+                http_verb, url, data=data, params=params, headers=headers
+            )
         except requests.RequestException as re:
             print(re)
             raise requests.RequestException from re
