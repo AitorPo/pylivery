@@ -66,19 +66,19 @@ class UberEatsClient(BaseAPIClient):
 
     def validate_address(
         self, data: dict
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'POST', f'{URL.QUOTE.format(customer_id=self.customer_id)}', data=data
         )
 
-    def create(self, data: dict) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def create(self, data: dict) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'POST', f"{URL.DELIVERIES.format(customer_id=self.customer_id)}", data=data
         )
 
     def get(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET',
             f"{URL.DELIVERIES.format(customer_id=self.customer_id)}/{_id}",
@@ -87,13 +87,13 @@ class UberEatsClient(BaseAPIClient):
 
     def get_order_status(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         response = self.get(_id)
         return response[0], response[1]['status']
 
     def cancel(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         # if not self.headers.get('Authorization'):
         #    self.authorize()
         # self.headers = {'Authorization': self.headers['Authorization']}
@@ -106,18 +106,18 @@ class UberEatsClient(BaseAPIClient):
 
     def update(
         self, _id: Union[str, int], data: dict
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
     def get_rider_data(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         response = self.get(_id)
         return response[0], response[1]['courier']
 
     def get_rider_location(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         response = self.get(_id)
         return response[0], response[1]['courier']['location']
 

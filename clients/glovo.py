@@ -73,44 +73,44 @@ class GlovoV2Client(BaseAPIClient):
 
     def validate_address(
         self, data: dict
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request('POST', f"{URL.PARCEL}validation", data=data)
 
-    def create(self, data: dict) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def create(self, data: dict) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request('POST', URL.PARCEL, data=data)
 
     def get(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request('GET', f"{URL.PARCEL}{_id}", data={})
 
     def get_order_status(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET', f"/{Versions.V2}/{URL.PARCEL}{_id}/status", data={}
         )
 
     def cancel(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request('PUT', f"{URL.PARCEL}{_id}/cancel", data={})
 
     def update(
         self, _id: Union[str, int], data: dict
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
     def get_rider_data(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET', f"{URL.PARCEL}{_id}/courier-contact", data={}
         )
 
     def get_rider_location(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET', f"{URL.PARCEL}{_id}/courier-position", data={}
         )

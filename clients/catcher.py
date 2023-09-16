@@ -60,48 +60,48 @@ class CatcherClient(BaseAPIClient):
 
     def validate_address(
         self, data: dict
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
-    def create(self, data: dict) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    def create(self, data: dict) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'POST', f"{URL.PITCHER.format(version=Versions.V1)}", data=data
         )
 
     def get(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET', f"{URL.PITCHER.format(version=Versions.V1)}/{_id}", data={}
         )
 
     def get_order_status(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET', f"{URL.PITCHER.format(version=Versions.V1)}/status/{_id}", data={}
         )
 
     def cancel(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'PUT', f"{URL.PITCHER.format(version=Versions.V1)}/cancel/{_id}", data={}
         )
 
     def update(
         self, _id: Union[str, int], data: dict
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
     def get_rider_data(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         pass
 
     def get_rider_location(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET',
             f"{URL.PITCHER.format(version=Versions.V1)}/riderlocation/{_id}",

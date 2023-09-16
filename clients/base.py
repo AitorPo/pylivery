@@ -52,54 +52,54 @@ class APIInterface(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def validate_address(
         self, data: dict
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         """Checks if the company makes deliveries in that working area"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def create(self, data: dict) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        """Creates and order"""
+    def create(self, data: dict) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
+        """Creates an order"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def get(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        """Gets and order"""
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
+        """Gets an order"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_order_status(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         """Gets order's status"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def cancel(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        """Cancels and order"""
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
+        """Cancels an order"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def update(
         self, _id: Union[str, int], data: dict
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         """Updates an order"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_rider_data(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         """Gets the rider's information"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_rider_location(
         self, _id: Union[str, int]
-    ) -> (Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+    ) -> Tuple[int, Union[List[Any], Dict[str, Any]]]:
         """Gets the rider's location (coordinates)"""
         raise NotImplementedError
 
