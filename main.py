@@ -11,6 +11,6 @@ uber_eats_client.set_api_credentials(
 )
 
 if __name__ == '__main__':
-    uber_eats_client.validate_address({})
-    glovo_v2_client.validate_address({})
-    catcher_client.validate_address({})
+    catcher_client.get(1)
+    glovo_v2_client.get(1)
+    uber_eats_client.get(1)

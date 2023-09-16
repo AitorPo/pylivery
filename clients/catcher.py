@@ -52,9 +52,11 @@ class CatcherClient(BaseAPIClient):
             f"{self.base_url}{URL.AUTH.format(version=Versions.V1)}",
             data=self.login_payload,
             headers=self.headers,
-        ).json()
+        )
 
-        self.access_token = response['data']['token']
+        self.raise_for_status(response.json(), f"{self.base_url}{URL.AUTH.format(version=Versions.V1)}")
+
+        self.access_token = response.json()['data']['token']
         self.expires_at = datetime.now() + timedelta(seconds=self.expires_in)
         self.headers.update({'Authorization': f'Bearer {self.access_token}'})
 

@@ -55,10 +55,11 @@ class UberEatsClient(BaseAPIClient):
             f"{URL.AUTH.format(version=Versions.V2)}",
             data=self.login_payload,
             headers=self.headers,
-        ).json()
+        )
+        response.raise_for_status()
 
-        self.access_token = response['access_token']
-        self.expires_in = response['expires_in']
+        self.access_token = response.json()['access_token']
+        self.expires_in = response.json()['expires_in']
         self.expires_at = datetime.now() + timedelta(seconds=self.expires_in)
         self.headers.update({'Authorization': f'Bearer {self.access_token}'})
         # We do not need urlencoded anymore

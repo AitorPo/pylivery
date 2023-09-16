@@ -59,12 +59,14 @@ class GlovoV2Client(BaseAPIClient):
         hasattr(self, 'client_secret') and self.client_secret is not Ellipsis
         hasattr(self, 'stage') and self.stage is not Ellipsis
 
-        conn = http.client.HTTPSConnection(f"{self.base_url.split('//')[1]}")
+        conn = http.client.HTTPSConnection(f"{self.base_url.split('//')[1][:-1]}")
         conn.request("POST", f"{URL.AUTH}", self.login_payload, self.headers)
 
         raw_response = conn.getresponse()
 
         response = json.loads(raw_response.read().decode('utf-8'))
+
+        self.raise_for_status(response, f"{self.base_url}{URL.AUTH}")
 
         self.access_token = response["accessToken"]
         self.expires_in = response["expiresIn"]

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Tuple, Union
 
 import requests
+from requests import HTTPError
 
 
 class APIInterface(metaclass=abc.ABCMeta):
@@ -145,6 +146,17 @@ class BaseAPIClient(APIInterface):
     def expires_at(self, value: datetime) -> None:
         self._expires_at = value
 
+    def raise_for_status(self, data: dict, url: str) -> None:
+        """Custom exception raiser that throws 'Unauthorized' when the authorization response returns an error with
+         status_code 20X (Catcher) or when 'requests' is not used to perform the authorization request (Glovo)"""
+        response_has_token = data.get('accessToken') or data.get('data').get('token')  # 'Glovo' or 'Catcher'
+
+        if not response_has_token:
+            http_error_msg = (
+                f"401 Client Error: 'Unauthorized' for url: {url}"
+            )
+            raise HTTPError(http_error_msg, response=self)
+
     def handle_authorization(self) -> bool:
         """Handles authorization headers
         :returns: True if token must be refreshed else False
@@ -181,14 +193,12 @@ class BaseAPIClient(APIInterface):
             response = requests.request(
                 http_verb, url, data=data, params=params, headers=headers
             )
-        except requests.RequestException as re:
-            print(re)
-            raise requests.RequestException from re
-        except requests.ConnectTimeout as ct:
-            print(ct)
-            raise requests.ConnectTimeout from ct
-        except Exception as e:
-            print(f'Something went wrong -> {e=}')
-            raise Exception from e
+            response.raise_for_status()
+        except requests.RequestException:
+            raise
+        except requests.ConnectTimeout:
+            raise
+        except Exception:
+            raise
 
         return response.status_code, response.json()
