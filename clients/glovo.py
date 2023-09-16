@@ -1,10 +1,14 @@
+import http.client
 import json
 from datetime import datetime, timedelta
 from typing import Dict, Union, Any, List, Tuple
 
-import requests
-
 from .base import BaseAPIClient
+
+
+class Stage:
+    PRODUCTION = "production"
+    STAGING = "staging"
 
 
 class Versions:
@@ -13,30 +17,37 @@ class Versions:
 
 
 class URL:
-    BASE_FORMAT = "https://api.catcher.es/"
+    PREFIX = {
+        Stage.PRODUCTION: "api",
+        Stage.STAGING: "stageapi",
+    }
+    BASE_FORMAT = "https://{prefix}.glovoapp.com/"
 
-    AUTH = "auth/{version}/authorize"
-    PITCHER = "pitcher/{version}/order"
+    AUTH = 'oauth/token'
+    PARCEL = "laas/parcels/"
 
 
-class CatcherClient(BaseAPIClient):
+class GlovoV2Client(BaseAPIClient):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.api_key = ...
-        self.api_secret = ...
+        self.client_id = ...
+        self.client_secret = ...
+        self.stage = ...
         self.base_url = URL.BASE_FORMAT
 
     def set_api_credentials(self, **kwargs: str) -> None:
-        self.api_key = kwargs.pop('api_key')
-        self.api_secret = kwargs.pop('api_secret')
+        self.client_id = kwargs.pop('client_id')
+        self.client_secret = kwargs.pop('client_secret')
+        self.stage = kwargs.pop('stage')
+        self.base_url = self.base_url.format(prefix=URL.PREFIX[self.stage])
 
     def set_login_payload(self) -> None:
         self.login_payload = json.dumps(
             {
-                "appId": str(self.api_key),
-                "appSecret": str(self.api_secret),
-                "grant_type": "client_secret",
+                "clientId": str(self.client_id),
+                "clientSecret": str(self.client_secret),
+                "grantType": "client_credentials",
             }
         )
 
@@ -45,27 +56,34 @@ class CatcherClient(BaseAPIClient):
             return
 
         self.set_login_payload()
-        hasattr(self, 'api_key') and self.api_key is not Ellipsis
-        hasattr(self, 'api_secret') and self.api_secret is not Ellipsis
+        hasattr(self, 'client_id') and self.client_id is not Ellipsis
+        hasattr(self, 'client_secret') and self.client_secret is not Ellipsis
 
-        response = requests.request('POST',
-                                    f"{self.base_url}{URL.AUTH.format(version=Versions.V1)}",
-                                    data=self.login_payload,
-                                    headers=self.headers).json()
+        conn = http.client.HTTPSConnection(f"{self.base_url.split('//')[1]}")
+        conn.request("POST", f"{URL.AUTH}", self.login_payload, self.headers)
 
-        self.access_token = response['data']['token']
+        raw_response = conn.getresponse()
+
+        response = json.loads(raw_response.read().decode('utf-8'))
+
+        self.access_token = response["accessToken"]
+        self.expires_in = response["expiresIn"]
         self.expires_at = datetime.now() + timedelta(seconds=self.expires_in)
         self.headers.update({'Authorization': f'Bearer {self.access_token}'})
 
     def validate_address(self, data: dict) -> (
             Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        pass
+        return self.perform_request(
+            'POST',
+            f"{URL.PARCEL}validation",
+            data=data
+        )
 
     def create(self, data: dict) -> (
             Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'POST',
-            f"{URL.PITCHER.format(version=Versions.V1)}",
+            URL.PARCEL,
             data=data
         )
 
@@ -73,7 +91,7 @@ class CatcherClient(BaseAPIClient):
             Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET',
-            f"{URL.PITCHER.format(version=Versions.V1)}/{_id}",
+            f"{URL.PARCEL}{_id}",
             data={}
         )
 
@@ -81,7 +99,7 @@ class CatcherClient(BaseAPIClient):
             Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET',
-            f"{URL.PITCHER.format(version=Versions.V1)}/status/{_id}",
+            f"/{Versions.V2}/{URL.PARCEL}{_id}/status",
             data={}
         )
 
@@ -89,7 +107,7 @@ class CatcherClient(BaseAPIClient):
             Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'PUT',
-            f"{URL.PITCHER.format(version=Versions.V1)}/cancel/{_id}",
+            f"{URL.PARCEL}{_id}/cancel",
             data={}
         )
 
@@ -99,15 +117,19 @@ class CatcherClient(BaseAPIClient):
 
     def get_rider_data(self, _id: Union[str, int]) -> (
             Tuple)[int, Union[List[Any], Dict[str, Any]]]:
-        pass
+        return self.perform_request(
+            'GET',
+            f"{URL.PARCEL}{_id}/courier-contact",
+            data={}
+        )
 
     def get_rider_location(self, _id: Union[str, int]) -> (
             Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         return self.perform_request(
             'GET',
-            f"{URL.PITCHER.format(version=Versions.V1)}/riderlocation/{_id}",
+            f"{URL.PARCEL}{_id}/courier-position",
             data={}
         )
 
 
-catcher_client = CatcherClient()
+glovo_v2_client = GlovoV2Client()

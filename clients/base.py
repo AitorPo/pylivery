@@ -1,5 +1,5 @@
 import abc
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 
@@ -16,6 +16,8 @@ class APIInterface(metaclass=abc.ABCMeta):
                 callable(subclass.set_login_payload) and
                 hasattr(subclass, 'authorize') and
                 callable(subclass.authorize) and
+                hasattr(subclass, 'validate_address') and
+                callable(subclass.validate_address) and
                 hasattr(subclass, 'create') and
                 callable(subclass.create) and
                 hasattr(subclass, 'get') and
@@ -26,6 +28,8 @@ class APIInterface(metaclass=abc.ABCMeta):
                 callable(subclass.cancel) and
                 hasattr(subclass, 'update') and
                 callable(subclass.update) and
+                hasattr(subclass, 'get_rider_data') and
+                callable(subclass.get_rider_data) and
                 hasattr(subclass, 'get_rider_location') and
                 callable(subclass.get_rider_location) or
                 NotImplemented
@@ -44,6 +48,12 @@ class APIInterface(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def authorize(self) -> None:
         """Handles authorization and token management"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def validate_address(self, data: dict) -> (
+            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+        """Checks if the company makes deliveries in that working area"""
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -77,6 +87,12 @@ class APIInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_rider_data(self, _id: Union[str, int]) -> (
+            Tuple)[int, Union[List[Any], Dict[str, Any]]]:
+        """Gets the rider's information"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_rider_location(self, _id: Union[str, int]) -> (
             Tuple)[int, Union[List[Any], Dict[str, Any]]]:
         """Gets the rider's location (coordinates)"""
@@ -85,7 +101,7 @@ class APIInterface(metaclass=abc.ABCMeta):
 
 class BaseAPIClient(APIInterface):
 
-    def __init__(self, *args,  **kwargs: str) -> None:
+    def __init__(self, *args, **kwargs: str) -> None:
         self.base_url = ...
         self.access_token = ...
         self.expires_in = 3600  # 1 hour
@@ -125,13 +141,19 @@ class BaseAPIClient(APIInterface):
     def expires_at(self, value: datetime) -> None:
         self._expires_at = value
 
-    def handle_authorization(self):
-        """Handles authorization headers"""
+    def handle_authorization(self) -> bool:
+        """Handles authorization headers
+        :returns: True if token must be refreshed else False
+        """
+        ask_for_token = True
         if 'Authorization' in self.headers:
-            if hasattr(self, 'expires_at') and self.expires_at >= datetime.now():
-                del self.headers['Authorization']
-            else:
-                return
+            if hasattr(self, 'expires_at'):
+                if self.expires_at <= datetime.now() + timedelta(seconds=120):
+                    del self.headers['Authorization']
+                else:
+                    ask_for_token = False
+
+        return ask_for_token
 
     def perform_request(self, http_verb: str, endpoint: str, *, data: Union[str, Dict[str, Any]] = ...,
                         params: Dict[str, str] = ...) -> Tuple[int, Dict[str, Any]]:
