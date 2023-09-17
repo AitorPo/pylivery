@@ -1,6 +1,6 @@
 from typing import Union
 
-from clients.enums import ClientsEnum
+from enums import ClientsEnum
 from clients.catcher import catcher_client, CatcherClient
 from clients.glovo import glovo_v2_client, GlovoV2Client
 from clients.ubereats import uber_eats_client, UberEatsClient

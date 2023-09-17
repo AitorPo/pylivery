@@ -1,4 +1,4 @@
-from clients.enums import ClientsEnum
+from enums import ClientsEnum
 from clients.glovo import glovo_v2_client
 from clients.ubereats import uber_eats_client
 from clients.catcher import catcher_client
