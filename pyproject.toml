@@ -13,6 +13,8 @@ requests = "*"
 flake8 = "*"
 isort = "*"
 black = "*"
+pytest = "*"
+pytest-mock = '*'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
